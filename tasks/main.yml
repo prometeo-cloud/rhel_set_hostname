@@ -21,11 +21,14 @@
   when: set_hostname | changed
   tags: set_hostname
 
+#- name: Waiting for host to be reachable
+#  local_action: wait_for host={{ inventory_hostname }} delay=5 port=22 state=started
+#  become: false
+#  when: set_hostname | changed
+#  tags: set_hostname
 - name: Waiting for host to be reachable
-  local_action: wait_for host={{ inventory_hostname }} delay=5 port=22 state=started
-  become: false
-  when: set_hostname | changed
-  tags: set_hostname
+  wait_for_connection:
+    delay: 5
 
 - name: Add host to /etc/hosts
   lineinfile:
@@ -48,7 +51,7 @@
   lineinfile:
     dest: /etc/cloud/cloud.cfg
     regexp: '.*preserve_hostname.*'
-  state: absent
+    state: absent
   when:
     - ansible_bios_version | search("amazon")
     - set_hostname | changed
@@ -58,7 +61,7 @@
     dest: /etc/cloud/cloud.cfg
     regexp: '.*preserve_hostname.*'
     line: 'preserve_hostname: true'
-  state: present
+    state: present
   when:
     - ansible_bios_version | search("amazon")
     - set_hostname | changed
