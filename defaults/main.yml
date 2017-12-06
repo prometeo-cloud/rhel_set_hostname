@@ -1,3 +1,2 @@
 ---
 ansible_become: "true"
-hostname: mysuper.host.name
